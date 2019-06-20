@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       					  http://www.springframework.org/schema/beans/spring-beans-3.0.xsd   
+               			  http://www.springframework.org/schema/context 
+                          http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                          http://www.springframework.org/schema/mvc 
+                          http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+	<!-- utf-8编码 -->
+	<mvc:annotation-driven> 
+		<mvc:message-converters register-defaults="true">
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<constructor-arg value="UTF-8" />
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+    
+	<!-- 扫描包，只扫描controller，父子容器,springmvc作为自容器只负责实例化controller的类 -->
+	<context:component-scan base-package="controller"></context:component-scan>
+    
+	<!-- 注解的意思是 全拦截只默认处理 servlet请求，不处理静态资源 html css js请求 -->
+	<mvc:default-servlet-handler />
+
+	<!-- 开启注解 -->
+	<mvc:annotation-driven/>
+
+	<!-- 视图解析器 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+		id="internalResourceViewResolver">
+		<!-- 前缀 -->
+		<property name="prefix" value="jsp/" />
+		<!-- 后缀 -->
+		<property name="suffix" value=".jsp" />
+	</bean>
+	
+	<!-- SpringMVC上传文件时,需配置MultipartResolver处理器作为上传组件 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 指定所上传文件的总大小不能超过800KB......注意maxUploadSize属性的限制不是针对单个文件,而是所有文件的容量之和 -->
+		<!-- <property name="maxUploadSize" value="999999999" /> -->
+		<property name="defaultEncoding" value="UTF-8" /> 
+	</bean>
+
+</beans>
