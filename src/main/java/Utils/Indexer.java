@@ -28,6 +28,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static Utils.PageUtil.pageBySubList;
+
 public class Indexer {
     static String indexPath="D:\\luceneIndex";
 
@@ -43,6 +45,7 @@ public class Indexer {
         // 3、读取磁盘上的文件，对应每个文件创建一个文档对象。
         File dir = new File("E:\\UserLog\\hivenode01\\hivecore\\bpLog\\new");
         File[] files = dir.listFiles();
+
             List<Log> logs=new ArrayList<>();
             int count = 0;
         for (File f : files) {
@@ -50,22 +53,27 @@ public class Indexer {
             String fileName = f.getName();
             // 文件的路径
             String filePath = f.getPath();
+            System.out.println("wenianming:"+fileName+"----------------"+"filepath:"+filePath);
             // 文件的内容
             ArrayList<String> arrayList = new ArrayList<>();
             try {
                 File file = new File(filePath);
-                InputStreamReader inputReader = new InputStreamReader(new FileInputStream(file));
-                BufferedReader bf = new BufferedReader(inputReader);			// 按行读取字符串
-                String str;
-                while ((str = bf.readLine()) != null) {
-                    int l = str.indexOf("SobeyHive");
-                    if (l == -1) {
-                        continue;
+                if(file.isFile()) {
+                    InputStreamReader inputReader = new InputStreamReader(new FileInputStream(file));
+                    BufferedReader bf = new BufferedReader(inputReader);            // 按行读取字符串
+                    String str;
+                    while ((str = bf.readLine()) != null) {
+                        int l = str.indexOf("SobeyHive");
+                        if (l == -1) {
+                            continue;
+                        }
+                        arrayList.add(str);
                     }
-                    arrayList.add(str);
+                    bf.close();
+                    inputReader.close();
+
                 }
-                bf.close();
-                inputReader.close();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }		// 对ArrayList中存储的字符串进行处理
@@ -73,9 +81,10 @@ public class Indexer {
             int[] array = new int[length];
 
             for (int i = 0; i < length; i++) {
-                String s = arrayList.get(i) + "\n";
+                String s = arrayList.get(i) ;
+                System.out.println("arrayList.get(i).length:"+arrayList.get(i).length()+"-----s.length:"+s.length());
                 int n = s.indexOf("{");
-                int m = s.indexOf("\n");
+                int m = s.length();
                 String str2 = s.substring(n, m);
                 JSONObject pa = JSONObject.parseObject(str2);
                 String level = pa.getString("level");
@@ -118,10 +127,10 @@ public class Indexer {
         }
 //            sort(logs);
         int count1 = 0;
-            for(Log log:logs){
-                count1++;
-                System.out.println(log);
-            }
+//            for(Log log:logs){
+//                count1++;
+//                System.out.println(log);
+//            }
 //            System.out.println("zongshudddddd"+count1);
 //            System.out.println("zongshu:"+count);
         // 6、关闭indexwriter对象
@@ -200,9 +209,10 @@ public class Indexer {
 
     public static void main(String[] args) throws IOException, ParseException, org.apache.lucene.queryparser.classic.ParseException {
         List<Log> logs=new ArrayList<>();
-      // createIndex();
-        searchByTimeAndLevel("2019-05-27 14:58:13.643","INFO","D:\\luceneIndex");
-     //  searchByTime("2019-05-27 14:58:13.668","D:\\luceneIndex");
+       createIndex();
+        //searchByTimeAndLevel("2019-05-27 14:58:13.643","INFO","D:\\luceneIndex");
+      // searchByTime("2019-05-27 14:58:51","D:\\luceneIndex");
+
         //searchByKeyword("WARN");
        // queryByMKeyWord("D:\\luceneIndex");
         //queryByTime("D:\\luceneIndex","2019-05-27");
@@ -318,6 +328,8 @@ public class Indexer {
                 count++;
                 System.out.println(count+"、 "+log);
             }
+            System.out.println("-----------------------");
+            System.out.println(pageBySubList(logs,20,1));
             System.out.println("匹配    "+searchByTime+"   总共花费："+(endTime-startTime)+"毫秒，查询到"+logs.size()+"条记录");
         } catch (IOException e2){
             e2.printStackTrace();

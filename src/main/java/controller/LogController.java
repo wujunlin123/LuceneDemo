@@ -13,6 +13,7 @@ import java.util.List;
 
 import static Utils.Indexer.dateFormatChange;
 import static Utils.Indexer.sort;
+import static Utils.PageUtil.pageBySubList;
 
 @Controller
 @RequestMapping("logController")
@@ -61,6 +62,8 @@ public class LogController {
             String searchByTime1;
            // searchByTime1 = dateFormatChange(searchByTime);
             list= Indexer.searchByTime(searchByTime,indexFile);
+            pageBySubList(list,20,1);
+            System.out.println(pageBySubList(list,20,1));
         }
         if(searchByTime.length() == 0 && searchByLevel.length() != 0){
             Indexer.clean();
