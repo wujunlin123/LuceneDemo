@@ -7,26 +7,18 @@
     <script src="js/jquery-1.7.2.js"></script>
     <script src="layui/layui.js" type="text/javascript"></script>
     <style>
-
         .left{
             float:left;
             width: 30%;
-
-
         }
         #left_top{
             display: flex;
             flex-direction: column;
             justify-content: center;
-
         }
         #seachFilePath, #seachFilePathDetail{
             margin-left:30%;
         }
-
-
-
-
         .right{
             float:right;
             width: 70%;
@@ -37,15 +29,10 @@
         }
         #input_box{
             display: flex;
-
         }
         .layui-input-block{
             margin-left: 200px;
         }
-
-
-
-
     </style>
 </head>
 <body>
@@ -53,10 +40,8 @@
     <div class="layui-input-block" id="keyWord" style="margin-top:5px;">
         <label class="layui-form-label">关键字</label>
         <div id="input_box" class="layui-input-inline">
-
             <input type="text" id="searchByTime" lay-verify="required" style="width:200px;"
                    placeholder="请输入日志时间" data-provide="typeahead" class="layui-input" autocomplete="off">
-
             <select id="searchByLevel" name="city" lay-verify="" list="levelList" lay-verify="required" style="width:200px;"
                     placeholder="请输入日志等级" data-provide="typeahead" class="layui-input" autocomplete="off">
                 <option value="">选择级别</option>
@@ -66,44 +51,143 @@
                 <option value="ERROR">ERROR</option>
                 <option value="DEBUG">DEBUG</option>
             </select>
-
-
             <!--<input type="hide" name="RegisterCompanyId" id="hiddenRegisterCompanyId_searchForm" />-->
         </div>
         <button type="text" id="foundPath" style="position: absolute;left: 700px;top: 0px;" class="layui-btn layui-btn-normal">查找</button>
     </div>
-    <div id="content">无</div>
+
+    <ul id="biuuu_city_list"></ul>
+    <br />
+    <br />
+    <div id="content"class="xxx" style="margin-left: 0px">无</div>
+    <script>
+        layui.use(['laypage', 'layer'], function () {
+            var laypage = layui.laypage
+                , layer = layui.layer;
+
+            // var data = [
+            //     '北京',
+            //     '上海',
+            //     '广州',
+            //     '深圳',
+            //     '杭州',
+            //     '长沙',
+            //     '合肥',
+            //     '宁夏',
+            //     '成都',
+            //     '西安',
+            //     '南昌',
+            //     '上饶',
+            //     '沈阳',
+            //     '济南',
+            //     '厦门',
+            //     '福州',
+            //     '九江',
+            //     '宜春',
+            //     '赣州',
+            //     '宁波',
+            //     '绍兴',
+            //     '无锡',
+            //     '苏州',
+            //     '徐州',
+            //     '东莞',
+            //     '佛山',
+            //     '中山',
+            //     '成都',
+            //     '武汉',
+            //     '青岛',
+            //     '天津',
+            //     '重庆',
+            //     '南京',
+            //     '九江',
+            //     '香港',
+            //     '澳门',
+            //     '台北'
+            // ];
+            $('#foundPath').on('click',function(){
+                var searchByTime = $('#searchByTime').val();
+                var searchByLevel = $('#searchByLevel').val();
+                console.log(searchByTime);
+                console.log(searchByLevel);
+                $.ajax({
+                    url: 'logController/getKey',
+                    type: 'post',
+                    data: {
+                        searchByTime: searchByTime,
+                        searchByLevel: searchByLevel
+                    },
+                    dataType:'json',
+                    success:function(data){
+                        console.log(data)
+                        //调用分页
+                        laypage.render({
+                            elem: 'content'
+                            , count: data.length
+                            , limit:1000
+                                ,jump: function (obj) {
+                                //模拟渲染
+                                let cp = obj.curr
+                                data: {
+                                    currentPage: cp
+                                }
+                                    document.getElementById('biuuu_city_list').innerHTML = function () {
+                                    var arr = []
+                                        , thisData = data.concat().splice(obj.curr * obj.limit - obj.limit, obj.limit);
+                                    layui.each(thisData, function(i,v){
+                                        $('#content').append((i+1)+". "+v.path+" "+v.level+" "+v.date+" "+v.detail+"<br>");
+                                    });
+                                    return arr.join('');
+                                }();
+                            }
+                        });
+                    }
+                });
+            })
+
+            // //调用分页
+            // laypage.render({
+            //     elem: 'content'
+            //     , count: data.length
+            //     , limit:20
+            //     ,jump: function (obj) {
+            //         //模拟渲染
+            //         document.getElementById('biuuu_city_list').innerHTML = function () {
+            //             var arr = []
+            //                 , thisData = data.concat().splice(obj.curr * obj.limit - obj.limit, obj.limit);
+            //             layui.each(thisData, function (index, item) {
+            //                 arr.push('<li>' + item + '</li>');
+            //             });
+            //             return arr.join('');
+            //         }();
+            //     }
+            // });
+
+        });
+    </script>
+
 
 </div>
 
 
-<div id="left_top">
 
+
+<div id="left_top">
     <input type="text" id="seachFilePath" lay-verify="required" style="width:200px;"
            placeholder="请输入目录地址" data-provide="typeahead" class="layui-input" autocomplete="off">
     <input type="text" id="seachFilePathDetail" lay-verify="required" style="width:200px;"
            placeholder="精确地址" data-provide="typeahead" class="layui-input" autocomplete="off">
     <button type="text" style="margin-left: 30%; width: 100px;text-align: center;" id="findFilepPath" class="layui-btn layui-btn-normal">查找</button>
-
 </div>
 
 
 <div class="left">
-
     <div id="tree">
-
     </div>
-
 </div>
 
-
-
 <script type="text/javascript">
-
     layui.use('tree', function(){
         var tree = layui.tree;
-
-
 
         //渲染
         var inst1 = tree.render({
@@ -127,34 +211,31 @@
         });
     });
 
+    // $('#foundPath').on('click',function(){
+    //     var searchByTime = $('#searchByTime').val();
+    //     var searchByLevel = $('#searchByLevel').val();
+    //     console.log(searchByTime);
+    //     console.log(searchByLevel);
+    //     $.ajax({
+    //         url: 'logController/getKey',
+    //         type: 'post',
+    //         data: {
+    //             searchByTime: searchByTime,
+    //             searchByLevel: searchByLevel
+    //         },
+    //         dataType:'json',
+    //         success:function(data){
+    //             console.log(data)
+    //             $('#content').text("");
+    //             $.each(data,function(i,v){
+    //                 $('#content').append((i+1)+". "+v.path+" "+v.level+" "+v.date+" "+v.detail+"<br>");
+    //             });
+    //         }
+    //     });
+    // })
 
 
-
-    $('#foundPath').on('click',function(){
-        var searchByTime = $('#searchByTime').val();
-        var searchByLevel = $('#searchByLevel').val();
-        console.log(searchByTime);
-        console.log(searchByLevel);
-        $.ajax({
-            url: 'logController/getKey',
-            type: 'post',
-            data: {
-                searchByTime: searchByTime,
-                searchByLevel: searchByLevel
-            },
-            dataType:'json',
-            success:function(data){
-                console.log(data)
-                $('#content').text("");
-                $.each(data,function(i,v){
-                    $('#content').append((i+1)+". "+v.path+" "+v.level+" "+v.date+" "+v.detail+"<br>");
-
-                });
-
-            }
-        });
-    })
 
 </script>
+
 </body>
-</html>

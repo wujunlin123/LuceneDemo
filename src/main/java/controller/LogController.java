@@ -40,11 +40,14 @@ public class LogController {
 
     @RequestMapping(value="getKey",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
-    public String getKey(String searchByTime,String searchByLevel){
-        System.out.println("---"+searchByTime+"---"+searchByLevel);
+    public String getKey(String searchByTime,String searchByLevel,String currentPage){
+        System.out.println("---"+searchByTime+"---"+searchByLevel+"--------++++");
         System.out.println("---"+searchByTime.length()+"---"+searchByLevel.length());
         List<Log> list = null;
         if(searchByTime.length()==0 && searchByLevel.length() == 0){
+            Indexer.clean();
+            Indexer.createIndex();
+            String indexFile = "D:\\luceneIndex";
 
         }
         if(searchByTime.length() > 0 && searchByLevel.length() > 0){
