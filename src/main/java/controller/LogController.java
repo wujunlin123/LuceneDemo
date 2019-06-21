@@ -1,19 +1,24 @@
 package controller;
 
 import Utils.Indexer;
+import Utils.Tree;
 import com.alibaba.fastjson.JSONArray;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pojo.Log;
+import pojo.SimpleData;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import static Utils.Indexer.dateFormatChange;
 import static Utils.Indexer.sort;
 import static Utils.PageUtil.pageBySubList;
+import static Utils.Tree.breachs;
 
 @Controller
 @RequestMapping("logController")
@@ -36,6 +41,14 @@ public class LogController {
     public String delIndex(HttpServletRequest req){
         Indexer.clean();
         return "删除索引";
+    }
+    @RequestMapping(value="creatTree",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public String creatTree(String path){
+        path = "E:\\UserLog";
+       List<SimpleData> list = null;
+       list = Tree.fullData(new File(path),breachs,0,1);
+        return JSONArray.toJSONString(list);
     }
 
     @RequestMapping(value="getKey",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})

@@ -178,11 +178,6 @@ public class Indexer {
         return out;
     }
 
-
-
-
-
-
     public static void sort(List<Log> logs){
         Collections.sort(logs, new Comparator<Log>() {
             @Override
