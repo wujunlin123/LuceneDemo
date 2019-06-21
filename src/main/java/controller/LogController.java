@@ -44,11 +44,26 @@ public class LogController {
     }
     @RequestMapping(value="creatTree",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
-    public String creatTree(String path){
-        path = "E:\\UserLog";
-       List<SimpleData> list = null;
-       list = Tree.fullData(new File(path),breachs,0,1);
-        return JSONArray.toJSONString(list);
+    public String creatTree(String seachFilePath,String seachFilePathDetail,String path){
+        System.out.println("seachFilePathDetail:"+seachFilePathDetail);
+        System.out.println("seachFilePath:"+seachFilePath);
+      //  path = "E:\\UserLog";
+       List<SimpleData> lists = null;
+       breachs.clear();
+       Tree.fullData(new File("E:\\UserLog"),breachs,0,1);
+        System.out.println("breachs11111111111111"+breachs);
+//        for(SimpleData breach : breachs){
+//            lists.add(breach);
+//            System.out.println(breach.toString());
+//
+//        }
+//        System.out.println("---------------");
+//        for(SimpleData list : lists){
+//
+//            System.out.println(list.toString());
+//
+//        }
+        return JSONArray.toJSONString(breachs);
     }
 
     @RequestMapping(value="getKey",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})

@@ -152,12 +152,12 @@
                 url: 'logController/creatTree',
                 type: 'get',
                 data: {
-                    searchByTime: seachFilePath,
-                    searchByLevel: seachFilePathDetail
+                    seachFilePath: seachFilePath,
+                    seachFilePathDetail: seachFilePathDetail
                 },
                 dataType:'json',
                 success:function(data){
-                    console.log(data)
+                    console.log("data+++++++++++hhhhh",data)
 
                 }
             });

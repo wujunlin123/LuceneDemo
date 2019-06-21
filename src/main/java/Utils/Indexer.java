@@ -375,11 +375,11 @@ public class Indexer {
                 logs.add(log);
             }
             sort(logs);
-            int count = 0;
-            for(Log log:logs){
-                count++;
-                System.out.println(count+"、 "+log);
-            }
+//            int count = 0;
+//            for(Log log:logs){
+//                count++;
+//                System.out.println(count+"、 "+log);
+//            }
             System.out.println("匹配    "+searchByLevel+"   总共花费："+(endTime-startTime)+"毫秒，查询到"+topDocs.totalHits+"条记录");
         } catch (IOException e2){
             e2.printStackTrace();

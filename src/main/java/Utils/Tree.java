@@ -26,7 +26,8 @@ public class Tree {
 //        System.out.println(tree.fullData(new File("E:\\UserLog"),breachs,0,1));
 //        System.out.println("---------");
     }
-    public static List<SimpleData> fullData(File root , List<SimpleData> breach, int pid, int id) {
+    public static int fullData(File root , List<SimpleData> breach, int pid, int id) {
+
 
         File[] fileList = root.listFiles();
         int len = fileList.length;
@@ -44,7 +45,7 @@ public class Tree {
                 String path1 = path.replace("\\", "/");
                 bsd.setPath(path1);
                 breach.add(bsd);
-             //   sonid = fullData(fileList[i], breach, sonid, sonid + 1);
+                sonid = fullData(fileList[i], breach, sonid, sonid + 1);
             } else {
                 SimpleData leaf = new SimpleData();
                 leaf.setPid(fatherpid);
@@ -57,7 +58,7 @@ public class Tree {
                 sonid++;
             }
         }
-        return breachs;
+        return sonid;
 
 
     }
