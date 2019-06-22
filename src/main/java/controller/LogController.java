@@ -2,7 +2,10 @@ package controller;
 
 import Utils.Indexer;
 import Utils.Tree;
+import Utils.Tree1;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import org.junit.jupiter.api.Test;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,28 +45,23 @@ public class LogController {
         Indexer.clean();
         return "删除索引";
     }
+    @Test
     @RequestMapping(value="creatTree",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
     public String creatTree(String seachFilePath,String seachFilePathDetail,String path){
         System.out.println("seachFilePathDetail:"+seachFilePathDetail);
         System.out.println("seachFilePath:"+seachFilePath);
       //  path = "E:\\UserLog";
-       List<SimpleData> lists = null;
-       breachs.clear();
-       Tree.fullData(new File("E:\\UserLog"),breachs,0,1);
-        System.out.println("breachs11111111111111"+breachs);
-//        for(SimpleData breach : breachs){
-//            lists.add(breach);
-//            System.out.println(breach.toString());
-//
-//        }
-//        System.out.println("---------------");
-//        for(SimpleData list : lists){
-//
-//            System.out.println(list.toString());
-//
-//        }
-        return JSONArray.toJSONString(breachs);
+        Tree1 tree1 = new Tree1();
+//        tree1.scan("E:\\UserLog");
+//       List<SimpleData> lists = null;
+//       breachs.clear();
+//       Tree.fullData(new File("E:\\UserLog"),breachs,0,1);
+//        System.out.println("breachs11111111111111"+breachs.toString());
+
+return JSON.toJSONString(tree1.scan("E:\\UserLog"));
+
+        //return JSONArray.toJSONString(breachs.toString());
     }
 
     @RequestMapping(value="getKey",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})

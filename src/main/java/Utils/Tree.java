@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+//生成ztre简单json数据
 public class Tree {
 
     public static List<SimpleData> breachs = new ArrayList<>();

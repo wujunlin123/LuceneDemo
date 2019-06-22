@@ -41,9 +41,9 @@ public class SimpleData {
     @Override
     public String toString() {
         return "{" +
-                "id=" + id +
-                ", pid=" + pid +
-                ", name='" + name + '\''+
+                "id:" + id +
+                ", pId:" + pid +
+                ", name:"+'\"' + name + '\"'+
                 '}';
     }
 }
