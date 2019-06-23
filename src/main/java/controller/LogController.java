@@ -1,7 +1,6 @@
 package controller;
 
 import Utils.Indexer;
-import Utils.Tree;
 import Utils.Tree1;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -11,18 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pojo.Log;
-import pojo.SimpleData;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import static Utils.Indexer.dateFormatChange;
-import static Utils.Indexer.sort;
 import static Utils.PageUtil.pageBySubList;
-import static Utils.Tree.breachs;
 
 @Controller
 @RequestMapping("logController")
@@ -70,7 +64,7 @@ return JSON.toJSONString(tree1.scan(seachFilePath));
 
     @RequestMapping(value="getKey",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
-    public String getKey(String  seachFilePath,String searchByTime,String searchByLevel,String currentPage) throws IOException, InterruptedException {
+    public String getKey(String seachFilePath, String searchByTime, String searchByLevel, String currentPage) throws IOException, InterruptedException {
         System.out.println("---"+seachFilePath+"---"+seachFilePath+"--------++++");
        // seachFilePath.replaceAll("\","\\");
         System.out.println("---"+searchByTime+"---"+searchByLevel+"--------++++");
