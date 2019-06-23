@@ -70,8 +70,10 @@
             var laypage = layui.laypage
                 , layer = layui.layer;
             $('#foundPath').on('click',function(){
+                var seachFilePath =$('#seachFilePath').val();
                 var searchByTime = $('#searchByTime').val();
                 var searchByLevel = $('#searchByLevel').val();
+                console.log("111",seachFilePath);
                 console.log(searchByTime);
                 console.log(searchByLevel);
                 $.ajax({
@@ -79,7 +81,8 @@
                     type: 'post',
                     data: {
                         searchByTime: searchByTime,
-                        searchByLevel: searchByLevel
+                        searchByLevel: searchByLevel,
+                        seachFilePath:seachFilePath,
                     },
                     dataType:'json',
                     success:function(data){
@@ -146,20 +149,37 @@
     </div>
     <script>
         var zTreeObj;
-        var setting = {};
+        // var setting = {
+        //     callback:zTreeOnClick,
+        // };
+        // 单击事件
+
+
+        // var setting = {
+        //     callback:zTreeOnClick,
+        //     view:{
+        //         showLine:false //使显示的节点与节点间没有虚线
+        //     },
+        //     data: {
+        //         simpleData: {//规定显示的数据格式
+        //             idKey:"id",
+        //             pIdKey:"pId",
+        //             enable: true,
+        //             rootPId:0
+        //         }
+        //     }
+        // };
+        function zTreeOnClick(event, treeId, treeNode) {
+            var treeNodeName = treeNode.name
+
+            alert(treeNode.tId + ", " + treeNode.name);
+        };
         var setting = {
-            view:{
-                showLine:false //使显示的节点与节点间没有虚线
-            },
-            data: {
-                simpleData: {//规定显示的数据格式
-                    idKey:"id",
-                    pIdKey:"pId",
-                    enable: true,
-                    rootPId:0
-                }
+            callback: {
+                onClick: zTreeOnClick
             }
         };
+
         $('#findFilepPath').on('click',function(){
             var seachFilePath =$('#seachFilePath').val();
             var seachFilePathDetail =$('#seachFilePathDetail').val();
@@ -171,13 +191,17 @@
                 },
                 dataType:'json',
                 type:'POST',
+
                 success:function(result){
                     var zNodes=eval('('+result+')');
                     console.log(zNodes);
                     $.fn.zTree.init($("#treeDemo"), setting, zNodes);//使tree在id=“treeDemo”的容器中显示
+
+
                 },
                 error:function(){
                 }
+
             });
         });
 

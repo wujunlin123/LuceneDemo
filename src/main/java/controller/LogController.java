@@ -15,6 +15,7 @@ import pojo.SimpleData;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,15 +31,15 @@ public class LogController {
         System.out.println("LogController 实例化");
     }
 
-    @RequestMapping(value="createIndex",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
-    @ResponseBody
-    public String createIndex(HttpServletRequest req){
-        Indexer.clean();
-        if(Indexer.createIndex()){
-            return "索引成功";
-        }
-        return "建立失败";
-    }
+//    @RequestMapping(value="createIndex",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
+//    @ResponseBody
+//    public String createIndex(HttpServletRequest req){
+//        Indexer.clean();
+//        if(Indexer.createIndex()){
+//            return "索引成功";
+//        }
+//        return "建立失败";
+//    }
     @RequestMapping(value="delIndex",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
     public String delIndex(HttpServletRequest req){
@@ -48,6 +49,8 @@ public class LogController {
     @Test
     @RequestMapping(value="creatTree",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
+
+    //生成目录树
     public String creatTree(String seachFilePath,String seachFilePathDetail,String path){
         System.out.println("seachFilePathDetail:"+seachFilePathDetail);
         System.out.println("seachFilePath:"+seachFilePath);
@@ -59,46 +62,56 @@ public class LogController {
 //       Tree.fullData(new File("E:\\UserLog"),breachs,0,1);
 //        System.out.println("breachs11111111111111"+breachs.toString());
 
-return JSON.toJSONString(tree1.scan("E:\\UserLog"));
+return JSON.toJSONString(tree1.scan(seachFilePath));
 
         //return JSONArray.toJSONString(breachs.toString());
     }
 
+
     @RequestMapping(value="getKey",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
-    public String getKey(String searchByTime,String searchByLevel,String currentPage){
+    public String getKey(String  seachFilePath,String searchByTime,String searchByLevel,String currentPage) throws IOException, InterruptedException {
+        System.out.println("---"+seachFilePath+"---"+seachFilePath+"--------++++");
+       // seachFilePath.replaceAll("\","\\");
         System.out.println("---"+searchByTime+"---"+searchByLevel+"--------++++");
         System.out.println("---"+searchByTime.length()+"---"+searchByLevel.length());
         List<Log> list = null;
         if(searchByTime.length()==0 && searchByLevel.length() == 0){
+            System.out.println(222);
             Indexer.clean();
-            Indexer.createIndex();
-            String indexFile = "D:\\luceneIndex";
+            Indexer.createIndex(seachFilePath);
+
+
+            list= Indexer.readAll();
 
         }
         if(searchByTime.length() > 0 && searchByLevel.length() > 0){
+            System.out.println(333);
             Indexer.clean();
-            Indexer.createIndex();
-            String indexFile = "D:\\luceneIndex";
+            Indexer.createIndex(seachFilePath);
+
             String searchByTime1;
             //searchByTime1 = dateFormatChange(searchByTime);
-            list= Indexer.searchByTimeAndLevel(searchByTime,searchByLevel,indexFile);
+            list= Indexer.searchByTimeAndLevel(searchByTime,searchByLevel);
         }
-        if(searchByTime.length() !=0 && searchByLevel.length() == 0){
+        if(searchByTime.length() >0 && searchByLevel.length() == 0){
+            System.out.println(444);
             Indexer.clean();
-            Indexer.createIndex();
-            String indexFile = "D:\\luceneIndex";
+            Indexer.createIndex(seachFilePath);
+
             String searchByTime1;
            // searchByTime1 = dateFormatChange(searchByTime);
-            list= Indexer.searchByTime(searchByTime,indexFile);
+            list= Indexer.searchByTime(searchByTime);
             pageBySubList(list,20,1);
             System.out.println(pageBySubList(list,20,1));
         }
-        if(searchByTime.length() == 0 && searchByLevel.length() != 0){
+        if(searchByTime.length() == 0 && searchByLevel.length() > 0){
+            System.out.println(11111);
             Indexer.clean();
-            Indexer.createIndex();
-            String indexFile = "D:\\luceneIndex";
-            list= Indexer.searchByLevel(searchByLevel,indexFile);
+            Indexer.createIndex(seachFilePath);
+
+            list= Indexer.searchByLevel(searchByLevel);
+            System.out.println("1243241"+list.toString());
         }
 //        if(searchByWord==null){
 //            System.out.println("hhhh");
