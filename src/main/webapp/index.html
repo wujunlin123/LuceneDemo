@@ -92,13 +92,17 @@
                             elem: 'content'
                             , count: data.length
                             , limit:1000
-                                ,jump: function (obj) {
+                            ,jump: function (obj) {
                                 //模拟渲染
-                                    document.getElementById('biuuu_city_list').innerHTML = function () {
+                                document.getElementById('biuuu_city_list').innerHTML = function () {
                                     var arr = []
                                         , thisData = data.concat().splice(obj.curr * obj.limit - obj.limit, obj.limit);
                                     layui.each(thisData, function(i,v){
-                                        $('#content').append((i+1)+". "+v.path+" "+v.level+" "+v.date+" "+v.detail+"<br>");
+                                        let htmlStr = '';
+                                        htmlStr = `<div >
+                                                        ${i+1}.${v.path}-${v.level}-${v.date}-${v.detail}
+                                                   </div>`
+                                        $('#content').append(htmlStr);
                                     });
                                     return arr.join('');
                                 }();
@@ -107,7 +111,7 @@
                     }
                 });
             })
-
+        });
             // //调用分页
             // laypage.render({
             //     elem: 'content'
@@ -126,7 +130,7 @@
             //     }
             // });
 
-        });
+
     </script>
 
 
@@ -169,20 +173,54 @@
         //         }
         //     }
         // };
-        function zTreeOnClick(event, treeId, treeNode) {
-            var treeNodeName = treeNode.name
 
-            alert(treeNode.tId + ", " + treeNode.name);
-        };
-        var setting = {
-            callback: {
-                onClick: zTreeOnClick
-            }
-        };
+        function searchLogByPath(dir,path){
+            console.log("5",dir);
+            console.log("4",path);
+            $.ajax({
+                url: 'logController/searchLogByPath',
+                type: 'get',
+                data: {
+                    dir:dir,
+                    path: path
+                },
+                dataType:'json',
+                success:function(data){
+                    console.log("aa:"+data);
+                    layui.use(['laypage', 'layer'], function () {
+                        var laypage = layui.laypage
+                            , layer = layui.layer;
 
-        $('#findFilepPath').on('click',function(){
-            var seachFilePath =$('#seachFilePath').val();
-            var seachFilePathDetail =$('#seachFilePathDetail').val();
+                                    console.log(data)
+                                    //调用分页
+                                    laypage.render({
+                                        elem: 'content'
+                                        , count: data.length
+                                        , limit:1000
+                                        ,jump: function (obj) {
+                                            //模拟渲染
+                                            document.getElementById('biuuu_city_list').innerHTML = function () {
+                                                var arr = []
+                                                    , thisData = data.concat().splice(obj.curr * obj.limit - obj.limit, obj.limit);
+                                                layui.each(thisData, function(i,v){
+                                                    let htmlStr = '';
+                                                    htmlStr = `<div>
+                                                        ${i+1}.${v.path}-${v.level}-${v.date}-${v.detail}
+                                                   </div>`
+                                                    $('#content').append(htmlStr);
+                                                });
+                                                return arr.join('');
+                                            }();
+                                        }
+                                    });
+                    });
+
+                }
+            });
+
+        }
+
+        function findFilepPath(seachFilePath,seachFilePathDetail){
             $.ajax({
                 url: 'logController/creatTree',
                 data:{
@@ -193,16 +231,68 @@
                 type:'POST',
 
                 success:function(result){
+
+                    var tree=$("#treeDemo");
                     var zNodes=eval('('+result+')');
                     console.log(zNodes);
-                    $.fn.zTree.init($("#treeDemo"), setting, zNodes);//使tree在id=“treeDemo”的容器中显示
-
-
+                    $.fn.zTree.init(tree, setting, zNodes);//使tree在id=“treeDemo”的容器中显示
+                    tree.attr('value',seachFilePath);
+                    // layui.use(['laypage', 'layer'], function () {
+                    //     var laypage = layui.laypage
+                    //         , layer = layui.layer;
+                    //
+                    //     console.log(result)
+                        //调用分页
+                        // laypage.render({
+                        //     elem: 'content'
+                        //     , count: result.length
+                        //     , limit:1000
+                        //     ,jump: function (obj) {
+                        //         //模拟渲染
+                        //         document.getElementById('biuuu_city_list').innerHTML = function () {
+                        //             var arr = []
+                        //                 , thisData = data.concat().splice(obj.curr * obj.limit - obj.limit, obj.limit);
+                        //             layui.each(thisData, function(i,v){
+                        //                 $('#content').append((i+1)+". "+v.path+" "+v.level+" "+v.date+" "+v.detail+"<br>");
+                        //             });
+                        //             return arr.join('');
+                        //         }();
+                        //     }
+                        // });
+                    // });
                 },
                 error:function(){
                 }
 
             });
+        }
+
+        function zTreeOnClick(event, treeId, treeNode) {
+            var treeNodeName = treeNode.name
+
+            var thisPath="";
+            $.each(treeNode.getPath(),function(i,v){
+                thisPath+=v.name+"\\";
+            });
+            console.log(treeNode.tId + ", " + treeNode.name+","+thisPath);
+
+            console.log("123",$("#treeDemo").val());
+            console.log("321",thisPath);
+
+
+            searchLogByPath($("#treeDemo").val(),thisPath);
+
+        };
+        var setting = {
+            callback: {
+                onClick: zTreeOnClick
+            }
+        };
+
+        $('#findFilepPath').click(function(){
+            var seachFilePath =$('#seachFilePath').val();
+            var seachFilePathDetail =$('#seachFilePathDetail').val();
+            findFilepPath(seachFilePath,seachFilePathDetail);
         });
 
 

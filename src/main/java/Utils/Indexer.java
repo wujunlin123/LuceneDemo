@@ -32,7 +32,14 @@ import java.util.*;
 import static Utils.PageUtil.pageBySubList;
 
 public class Indexer {
-    public static String indexPath="D:\\luceneIndex";
+    public static String indexPath="D:\\luceneIndex2";
+
+    private static List<String> list=new ArrayList<>();
+
+    public static boolean createIndex(File file) throws IOException {
+        return createIndex111(file.getCanonicalPath());
+    }
+
     public static boolean createIndex(String filepath){
         try{
             // 1、创建一个Director对象，指定索引库保存的位置。
@@ -49,7 +56,7 @@ public class Indexer {
             int count = 0;
             for (File f : files) {
                 // 取文件名
-                String fileName = f.getName();
+                String fileName = f.getAbsolutePath();
                 // 文件的路径
                 String filePath = f.getPath();
                 System.out.println("wenianming:"+fileName+"----------------"+"filepath:"+filePath);
@@ -121,19 +128,21 @@ public class Indexer {
                     // 5、把文档对象写入索引库
                     indexWriter.addDocument(document);
                     count++;
+
                 }
                 System.out.println("count:"+count);
             }
-//            sort(logs);
-            int count1 = 0;
-            for(Log log:logs){
-                count1++;
-                System.out.println(log);
-            }
-            System.out.println("zongshudddddd"+count1);
-            System.out.println("zongshu:"+count);
             // 6、关闭indexwriter对象
             indexWriter.close();
+//            sort(logs);
+//            int count1 = 0;
+//            for(Log log:logs){
+//                count1++;
+//                System.out.println(log);
+//            }
+//            System.out.println("zongshudddddd"+count1);
+//            System.out.println("zongshu:"+count);
+
         }catch(IOException e){
             e.printStackTrace();
             return false;
@@ -141,6 +150,135 @@ public class Indexer {
         return true;
 
     }
+
+    public static void createIndexByDir(String path) throws IOException {
+        File file= new File(path);
+        System.out.println(file.getPath());
+
+        if(file.isDirectory()){//是文件夹
+            String[] names=file.list();
+            for(String name:names){
+                createIndexByDir(path+"\\"+name);
+            }
+        }else if(file.isFile() && !UnZip.isZip(path.substring(path.lastIndexOf(".")))){
+
+                System.out.println("创建索引:"+path);
+                createIndex(file);
+
+
+        }
+    }
+
+    public static boolean createIndex111(String filePath){
+        System.out.println("lucene :"+filePath);
+        try{
+            // 1、创建一个Director对象，指定索引库保存的位置。
+            // 把索引库保存在内存中
+            // Directory directory = new RAMDirectory();
+            // 把索引库保存在磁盘
+            Directory directory = FSDirectory.open(new File(indexPath).toPath());
+            // 2、基于Directory对象创建一个IndexWriter对象
+            IndexWriter indexWriter = new IndexWriter(directory, new IndexWriterConfig());
+            // 3、读取磁盘上的文件，对应每个文件创建一个文档对象。
+            File file = new File(filePath);
+            List<Log> logs=new ArrayList<>();
+            int count = 0;
+                // 取文件名
+                String fileName = file.getName();
+                // 文件的路径
+                System.out.println("wenianming:"+fileName+"----------------"+"filepath:"+filePath);
+                // 文件的内容
+                ArrayList<String> arrayList = new ArrayList<>();
+                try {
+                    if(file.isFile()) {
+                        InputStreamReader inputReader = new InputStreamReader(new FileInputStream(file));
+                        BufferedReader bf = new BufferedReader(inputReader);            // 按行读取字符串
+                        String str;
+                        while ((str = bf.readLine()) != null) {
+                            int l = str.indexOf("SobeyHive");
+                            if (l == -1) {
+                                continue;
+                            }
+                            int n = str.indexOf("level");
+                            if (n == -1) {
+                                continue;
+                            }
+                            arrayList.add(str);
+                        }
+                        bf.close();
+                        inputReader.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }		// 对ArrayList中存储的字符串进行处理
+                int length = arrayList.size();
+                int[] array = new int[length];
+                for (int i = 0; i < length; i++) {
+
+                    String s = arrayList.get(i) ;
+//                System.out.println(s);
+//                System.out.println("arrayList.get(i).length:"+arrayList.get(i).length()+"-----s.length:"+s.length());
+                    int n = s.indexOf("{");
+                    int m = s.length();
+                    String str2 = s.substring(n, m);
+                    JSONObject pa = JSONObject.parseObject(str2);
+                    String level = pa.getString("level");
+                    String time = pa.getString("time");
+                    //   String time1 = dateFormatChange(time);
+                    String detail = pa.getString("detail");
+                    //  System.out.println(pa.getString("level") + "," + time );
+                    //  array[i] = Integer.parseInt(s);
+                    Log log = new Log(filePath, level, time, detail);
+                    logs.add(log);
+                    count++;
+                    // 文件的大小
+                    long fileSize = FileUtils.sizeOf(file);
+                    // 创建Field
+                    // 参数1：域的名称，参数2：域的内容，参数3：是否存储
+                    Field fieldName = new TextField("name", fileName, Field.Store.YES);
+                    Field fieldPath = new TextField("path", filePath,Field.Store.YES);
+                    Field fileTime = new TextField("time", time, Field.Store.YES);
+                    Field fileLevel = new TextField("level", level, Field.Store.YES);
+                    Field fieldContent = new TextField("content", detail, Field.Store.YES);
+                    Field fieldSizeValue = new LongPoint("size", fileSize);
+                    Field fieldSizeStore = new StoredField("size", fileSize);
+                    // 创建文档对象
+                    Document document = new Document();
+                    // 向文档对象中添加域
+                    document.add(fieldName);
+                    document.add(fieldPath);
+                    document.add(fileTime);
+                    document.add(fileLevel);
+                    document.add(fieldContent);
+                    // document.add(fieldSize);
+                    document.add(fieldSizeValue);
+                    document.add(fieldSizeStore);
+                    // 5、把文档对象写入索引库
+                    indexWriter.addDocument(document);
+                    list.add(filePath);
+
+                }
+                System.out.println("count:"+count);
+            // 6、关闭indexwriter对象
+            indexWriter.close();
+//            sort(logs);
+//            int count1 = 0;
+//            for(Log log:logs){
+//                count1++;
+//                System.out.println(log);
+//            }
+//            System.out.println("zongshudddddd"+count1);
+            System.out.println("zongshu:"+count);
+
+        }catch(IOException e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+
+    }
+
+
     public static  String dateFormatChangeBack(String valueIn ){
 
         String formatIn = "yyyy-MM-dd-HH-mm-ss-SSS";
@@ -207,7 +345,7 @@ public class Indexer {
             // 2、创建一个IndexReader对象
             IndexReader indexReader = DirectoryReader.open(directory);
             long maxdoc = indexReader.maxDoc();
-            System.out.println(maxdoc);
+            //System.out.println(maxdoc);
 
             for (int i = 0; i < maxdoc; i++) {
                 String path = indexReader.document(i).get("path");
@@ -231,12 +369,12 @@ public class Indexer {
 
             }
             sort(logs);
-            int count = 0;
-            for(Log logg:logs){
-                count++;
-                System.out.println(logg);
-            }
-            System.out.println("count2:"+count);
+//            int count = 0;
+//            for(Log logg:logs){
+//                count++;
+//                System.out.println(logg);
+//            }
+//            System.out.println("count2:"+count);
         }finally {
 
         }
@@ -244,11 +382,13 @@ public class Indexer {
     }
     public static void main(String[] args) throws IOException, ParseException, org.apache.lucene.queryparser.classic.ParseException, InterruptedException {
         List<Log> logs=new ArrayList<>();
-        createIndex("E:\\UserLog\\hivenode01\\hivecore\\bpLog\\new");
-        //searchByTimeAndLevel("2019-05-27 14:58:13.643","INFO","D:\\luceneIndex");
-        // searchByTime("2019-05-27","D:\\luceneIndex");
+       createIndexByDir("E:\\UserLog\\hivenode01\\hivecore\\bpLog\\new\\bpServer.log");
+//        searchByTimeAndLevel("2019-05-27 14:58:13.643","INFO","D:\\luceneIndex");
+//         searchByTime("2019-05-27","D:\\luceneIndex");
+        //testSearchIndex();
+        searchByLevel("WARN");
+        searchByPath("E:\\UserLog\\hivenode01\\hivecore\\bpLog\\new\\bpServer.log");
 
-        //searchByLevel("INFO");
         //readAll();
         //searchByKeyword("WARN");
         // queryByMKeyWord("D:\\luceneIndex");
@@ -264,7 +404,8 @@ public class Indexer {
 //        logs.addAll(searchByKeyword("RestAPI"));
 
 
-
+String str1 = "E:\\UserLog\\hivenode01\\hivecore\\bpLog\\new\\bpServer.log";
+String str2 = "E:\\UserLog\\hivenode01\\hivecore\\bpLog\\new\\bpServer.log ";
     }
     /**
      * 根据多个关键字从多个字段Field检索文件
@@ -309,9 +450,9 @@ public class Indexer {
 
             }
             sort(logs);
-            for(Log log:logs){
-                System.out.println(log);
-            }
+//            for(Log log:logs){
+//                System.out.println(log);
+//            }
             System.out.println("匹配    "+searchByTime+",+"+searchByLevel+"   总共花费："+(endTime-startTime)+"毫秒，查询到"+logs.size()+"条记录");
         } catch (IOException e2){
             e2.printStackTrace();
@@ -386,6 +527,32 @@ public class Indexer {
      * @throws IOException
      * @throws ParseException
      */
+
+
+    //搜索索引
+
+    public static List<Log> searchIndexByPath(String path) throws IOException {
+        System.out.println("查找path:"+path);
+        List<Log> list1=new ArrayList<>();
+        File file= new File(path);
+
+        if(file.isDirectory()){//是文件夹
+            String[] names=file.list();
+            for(String name:names){
+                list1.addAll(searchIndexByPath(path+"\\"+name));
+            }
+        }else if(file.isFile() && !UnZip.isZip(path.substring(path.lastIndexOf(".")))){
+            if(!list.contains(path)){
+                createIndex(file);
+            }
+            System.out.println("found:"+path);
+            list1.addAll(searchByPath(path));
+        }
+
+        System.out.println("list:"+list1.size());
+        return list1;
+    }
+
     public static List<Log> searchByLevel(String searchByLevel) {
         List<Log> logs=new ArrayList<>();
         try{
@@ -411,7 +578,7 @@ public class Indexer {
                 logs.add(log);
             }
             sort(logs);
-//            int count = 0;
+            int count = 0;
 //            for(Log log:logs){
 //                count++;
 //                System.out.println(count+"、 "+log);
@@ -424,10 +591,65 @@ public class Indexer {
         }
         return logs;
     }
+    public static List<Log> searchByPath(String path){
+        System.out.println("this:"+path);
+        List<Log> logs=new ArrayList<>();
+        try{
+            Directory directory = FSDirectory.open(new File(indexPath).toPath());
+            IndexReader reader = DirectoryReader.open(directory);
 
-    //搜索索引
+            Analyzer analyzer=new StandardAnalyzer();
+            QueryParser queryParser=new QueryParser("path", analyzer);
+            Query query= null;
+            query = queryParser.parse(path);
+            IndexSearcher searcher = new IndexSearcher(reader);
+            long startTime=System.currentTimeMillis();
+            TopDocs topDocs=searcher.search(query, 1000000);
+            long endTime=System.currentTimeMillis();
+            for(ScoreDoc scoreDoc:topDocs.scoreDocs) {
+                Document document=searcher.doc(scoreDoc.doc);
+                String fieldPath = document.get("path");
+                String fileTime = document.get("time");
+                String fileLevel = document.get("level");
+                String fileContent = document.get("content");
+                Log log = new Log(fieldPath, fileLevel, fileTime, fileContent);
+                // System.out.println(log);
+//                if(log.getPath().equals(path)){
+//                    logs.add(log);
+//                }
+            }
+            sort(logs);
+//            int count = 0;
+//            for(Log log:logs){
+//                count++;
+//                System.out.println(count+"、 "+log);
+//            }
+            System.out.println("匹配    "+path+"   总共花费："+(endTime-startTime)+"毫秒，查询到"+topDocs.totalHits+"条记录");
+        } catch (IOException e2){
+            e2.printStackTrace();
+        } catch (org.apache.lucene.queryparser.classic.ParseException e3) {
+            e3.printStackTrace();
+        }
+        return logs;
+    }
 
-    public void testSearchIndex() throws IOException{
+    private static List<Log> format(TopDocs topDocs,IndexSearcher indexSearcher) throws IOException {
+        List<Log> List=new ArrayList<>();
+        for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+            //scoreDoc.doc属性就是document对象的id
+            //int doc = scoreDoc.doc;
+            //根据document的id找到document对象
+            Document document = indexSearcher.doc(scoreDoc.doc);
+            String fieldPath = document.get("path");
+            String fileTime = document.get("time");
+            String fileLevel = document.get("level");
+            String fileContent = document.get("content");
+            List.add(new Log(fieldPath, fileLevel, fileTime, fileContent));
+        }
+        return List;
+    }
+
+    public static void testSearchIndex() throws IOException{
         //创建一个Directory对象，指定索引库存放的路径
         Directory directory = FSDirectory.open(new File("D:\\luceneIndex").toPath());
         //创建IndexReader对象，需要指定Directory对象
@@ -436,7 +658,7 @@ public class Indexer {
         IndexSearcher indexSearcher = new IndexSearcher(indexReader);
         //创建一个TermQuery（精准查询）对象，指定查询的域与查询的关键词
         //创建查询
-        Query query = new TermQuery(new Term("level", "INFO"));
+        Query query = new TermQuery(new Term("path", "C:\\Users\\wuhansan\\Desktop\\UserLog\\hivenode02\\2019-06-06-fpServer.18\\2019-06-06-fpServer.18"));
         //执行查询
         //第一个参数是查询对象，第二个参数是查询结果返回的最大值
         TopDocs topDocs = indexSearcher.search(query, 1000000000);
