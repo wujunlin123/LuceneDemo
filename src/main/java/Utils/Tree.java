@@ -21,7 +21,7 @@ public class Tree {
         tree.fullData(new File("E:\\UserLog"),breachs,0,1);
         for(SimpleData breach:breachs){
 
-            System.out.println(breach.toString());
+            //System.out.println(breach.toString());
         }
 //        System.out.println("+++++++++");
 //        System.out.println(tree.fullData(new File("E:\\UserLog"),breachs,0,1));

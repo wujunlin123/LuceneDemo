@@ -27,7 +27,6 @@ public class LogController {
     public LogController(){
         System.out.println("LogController 实例化");
     }
-
     //    @RequestMapping(value="createIndex",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
 //    @ResponseBody
 //    public String createIndex(HttpServletRequest req){
@@ -37,11 +36,9 @@ public class LogController {
 //        }
 //        return "建立失败";
 //    }
-
     @RequestMapping(value="searchLogByPath",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
     public String searchLogByPath(String dir,String path) throws IOException, InterruptedException {
-
         if(path.indexOf("\\") == path.length() - 1){
             real = dir;
         }else {
@@ -49,21 +46,18 @@ public class LogController {
             real = dir + path.substring(path.indexOf("\\"));
         }
         System.out.println("path:"+path);
-        System.out.println("查询目录："+real);
-//创建前清空
+        System.out.println("目录真实路径："+real);
+        //创建前清空
         //创建索引库
-        Indexer.clean();
         Indexer.createIndexByDir(real);
+        //调用readAll展示所有信息
 
         //调用readAll展示所有信息
         List list=new ArrayList();
-        list= Indexer.readAll();
+        list.addAll(Indexer.searchIndexByPath(real));
         //list= Indexer.readAll();
-
-
         return JSON.toJSONString(list);
     }
-
     @RequestMapping(value="delIndex",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
     public String delIndex(HttpServletRequest req){
@@ -73,31 +67,23 @@ public class LogController {
     @Test
     @RequestMapping(value="creatTree",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
-
     //生成目录树
     public String creatTree(String seachFilePath,String seachFilePathDetail,String path) throws IOException {
         System.out.println("seachFilePathDetail:"+seachFilePathDetail);
         System.out.println("seachFilePath:"+seachFilePath);
         //  path = "E:\\UserLog";
-
-
         UnZip.unZipDir(seachFilePath);//解压缩
-//        Indexer.createIndexByDir(seachFilePath);//生成索引
-
-
+        Indexer.clean();
+        Indexer.createIndexByDir(seachFilePath);//生成索引
         Tree1 tree1 = new Tree1();
 //        tree1.scan("E:\\UserLog");
 //       List<SimpleData> lists = null;
 //       breachs.clear();
 //       Tree.fullData(new File("E:\\UserLog"),breachs,0,1);
 //        System.out.println("breachs11111111111111"+breachs.toString());
-
         return JSON.toJSONString(tree1.scan(seachFilePath));
-
         //return JSONArray.toJSONString(breachs.toString());
     }
-
-
     @RequestMapping(value="getKey",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
     public String getKey(String seachFilePath, String searchByTime, String searchByLevel, String currentPage) throws IOException, InterruptedException {
@@ -108,63 +94,47 @@ public class LogController {
         List<Log> list = null;
         if(searchByTime.length()==0 && searchByLevel.length() == 0){
             System.out.println(222);
-            Indexer.clean();
-
+            //Indexer.clean();
             //创建索引库
             Indexer.createIndexByDir(seachFilePath);
-
            //将所有信息打印在右边
             list= Indexer.readAll();
-
         }
         if(searchByTime.length() > 0 && searchByLevel.length() > 0){
             System.out.println(333);
-            Indexer.clean();
+            //Indexer.clean();
             System.out.println("real:"+real);
             Indexer.createIndexByDir(real);
-
             String searchByTime1;
             //searchByTime1 = dateFormatChange(searchByTime);
-            list= Indexer.searchByTimeAndLevel(searchByTime,searchByLevel);
+            list= Indexer.searchByTimeAndLevelAndPath(searchByTime,searchByLevel,real);
         }
         if(searchByTime.length() >0 && searchByLevel.length() == 0){
             System.out.println(444);
-            Indexer.clean();
+            //Indexer.clean();
             Indexer.createIndexByDir(real);
             System.out.println("real:"+real);
-
             String searchByTime1;
             // searchByTime1 = dateFormatChange(searchByTime);
-            list= Indexer.searchByTime(searchByTime);
+            list= Indexer.searchByTimeAndPath(searchByTime,real);
             pageBySubList(list,20,1);
             System.out.println(pageBySubList(list,20,1));
         }
         if(searchByTime.length() == 0 && searchByLevel.length() > 0){
             System.out.println(11111);
             System.out.println("real:"+real);
-
-            Indexer.clean();
+            //Indexer.clean();
             Indexer.createIndexByDir(real);
-
-            list= Indexer.searchByLevel(searchByLevel);
-            System.out.println("1243241"+list.toString());
+            list= Indexer.searchByLevelAndPath(searchByLevel,real);
+           // System.out.println("1243241"+list.toString());
         }
-//        if(searchByWord==null){
-//            System.out.println("hhhh");
-//        }else{
-//            System.out.println("seachbyword = "+searchByWord.length());
-//        }
-
 
         return JSONArray.toJSONString(list);
 //        return JSONArray.toJSONString("aa");
-
     }
-
     @RequestMapping(value="getTree",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
     public String getTree(HttpServletRequest req){
-
         return "得到路径树";
     }
 }
