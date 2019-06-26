@@ -27,15 +27,6 @@ public class LogController {
     public LogController(){
         System.out.println("LogController 实例化");
     }
-    //    @RequestMapping(value="createIndex",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
-//    @ResponseBody
-//    public String createIndex(HttpServletRequest req){
-//        Indexer.clean();
-//        if(Indexer.createIndex()){
-//            return "索引成功";
-//        }
-//        return "建立失败";
-//    }
     @RequestMapping(value="searchLogByPath",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
     public String searchLogByPath(String dir,String path) throws IOException, InterruptedException {
@@ -47,12 +38,8 @@ public class LogController {
         }
         System.out.println("path:"+path);
         System.out.println("目录真实路径："+real);
-        //创建前清空
         //创建索引库
         Indexer.createIndexByDir(real);
-        //调用readAll展示所有信息
-
-        //调用readAll展示所有信息
         List list=new ArrayList();
         list.addAll(Indexer.searchIndexByPath(real));
         //list= Indexer.readAll();
@@ -76,13 +63,7 @@ public class LogController {
         Indexer.clean();
         Indexer.createIndexByDir(seachFilePath);//生成索引
         Tree1 tree1 = new Tree1();
-//        tree1.scan("E:\\UserLog");
-//       List<SimpleData> lists = null;
-//       breachs.clear();
-//       Tree.fullData(new File("E:\\UserLog"),breachs,0,1);
-//        System.out.println("breachs11111111111111"+breachs.toString());
         return JSON.toJSONString(tree1.scan(seachFilePath));
-        //return JSONArray.toJSONString(breachs.toString());
     }
     @RequestMapping(value="getKey",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
@@ -105,8 +86,6 @@ public class LogController {
             //Indexer.clean();
             System.out.println("real:"+real);
             Indexer.createIndexByDir(real);
-            String searchByTime1;
-            //searchByTime1 = dateFormatChange(searchByTime);
             list= Indexer.searchByTimeAndLevelAndPath(searchByTime,searchByLevel,real);
         }
         if(searchByTime.length() >0 && searchByLevel.length() == 0){
@@ -114,19 +93,17 @@ public class LogController {
             //Indexer.clean();
             Indexer.createIndexByDir(real);
             System.out.println("real:"+real);
-            String searchByTime1;
-            // searchByTime1 = dateFormatChange(searchByTime);
             list= Indexer.searchByTimeAndPath(searchByTime,real);
             pageBySubList(list,20,1);
             System.out.println(pageBySubList(list,20,1));
         }
+
         if(searchByTime.length() == 0 && searchByLevel.length() > 0){
             System.out.println(11111);
             System.out.println("real:"+real);
             //Indexer.clean();
             Indexer.createIndexByDir(real);
             list= Indexer.searchByLevelAndPath(searchByLevel,real);
-           // System.out.println("1243241"+list.toString());
         }
 
         return JSONArray.toJSONString(list);
