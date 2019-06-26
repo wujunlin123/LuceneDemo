@@ -29,7 +29,8 @@ public class LogController {
     }
     @RequestMapping(value="searchLogByPath",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
-    public String searchLogByPath(String dir,String path) throws IOException, InterruptedException {
+    public String searchLogByPath(String dir,String path ,String curr) throws IOException, InterruptedException {
+        System.out.println(curr);
         if(path.indexOf("\\") == path.length() - 1){
             real = dir;
         }else {
@@ -68,6 +69,9 @@ public class LogController {
     @RequestMapping(value="getKey",produces="application/json;charset=UTF-8",method={RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
     public String getKey(String seachFilePath, String searchByTime, String searchByLevel, String currentPage) throws IOException, InterruptedException {
+        String realPath;
+        realPath = real+"\\*";
+
         System.out.println("---"+seachFilePath+"---"+seachFilePath+"--------++++");
         // seachFilePath.replaceAll("\","\\");
         System.out.println("---"+searchByTime+"---"+searchByLevel+"--------++++");
@@ -86,14 +90,14 @@ public class LogController {
             //Indexer.clean();
             System.out.println("real:"+real);
             Indexer.createIndexByDir(real);
-            list= Indexer.searchByTimeAndLevelAndPath(searchByTime,searchByLevel,real);
+            list= Indexer.searchByTimeAndLevelAndPath(searchByTime,searchByLevel,realPath);
         }
         if(searchByTime.length() >0 && searchByLevel.length() == 0){
             System.out.println(444);
             //Indexer.clean();
             Indexer.createIndexByDir(real);
             System.out.println("real:"+real);
-            list= Indexer.searchByTimeAndPath(searchByTime,real);
+            list= Indexer.searchByTimeAndPath(searchByTime,realPath);
             pageBySubList(list,20,1);
             System.out.println(pageBySubList(list,20,1));
         }
@@ -103,7 +107,7 @@ public class LogController {
             System.out.println("real:"+real);
             //Indexer.clean();
             Indexer.createIndexByDir(real);
-            list= Indexer.searchByLevelAndPath(searchByLevel,real);
+            list= Indexer.searchByLevelAndPath(searchByLevel,realPath);
         }
 
         return JSONArray.toJSONString(list);

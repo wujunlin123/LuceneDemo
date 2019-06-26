@@ -11,8 +11,6 @@ class Tree1
     {
         Tree1 d = new Tree1();
         System.out.println(  d.scan("E:\\UserLog"));
-
-
     }
 
     public String scan(String path) {
@@ -25,7 +23,6 @@ class Tree1
         else System.out.format("{name : \"%s\"}", f.getName());
         return buf.toString();
     }
-
     StringBuilder buf;
     int kai = 0;
     public Tree1() {

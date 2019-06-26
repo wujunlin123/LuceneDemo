@@ -36,121 +36,15 @@ import static Utils.PageUtil.pageBySubList;
 import static controller.LogController.real;
 
 public class Indexer {
-    public static String indexPath="D:\\luceneIndex2";
+    public static String indexPath="D:\\luceneIndex";
 
     private static List<String> list=new ArrayList<>();
 
     public static boolean createIndex(File file) throws IOException {
-        return createIndex111(file.getCanonicalPath());
+        return createIndex(file.getCanonicalPath());
     }
 
-    public static boolean createIndex(String filepath){
-        try{
-            // 1、创建一个Director对象，指定索引库保存的位置。
-            // 把索引库保存在内存中
-            // Directory directory = new RAMDirectory();
-            // 把索引库保存在磁盘
-            Directory directory = FSDirectory.open(new File(indexPath).toPath());
-            // 2、基于Directory对象创建一个IndexWriter对象
-            IndexWriter indexWriter = new IndexWriter(directory, new IndexWriterConfig());
-            // 3、读取磁盘上的文件，对应每个文件创建一个文档对象。
-            File dir = new File(filepath);
-            File[] files = dir.listFiles();
-            List<Log> logs=new ArrayList<>();
-            int count = 0;
-            for (File f : files) {
-                // 取文件名
-                String fileName = f.getAbsolutePath();
-                // 文件的路径
-                String filePath = f.getPath();
-                System.out.println("wenianming:"+fileName+"----------------"+"filepath:"+filePath);
-                // 文件的内容
-                ArrayList<String> arrayList = new ArrayList<>();
-                try {
-                    File file = new File(filePath);
-                    if(file.isFile()) {
-                        InputStreamReader inputReader = new InputStreamReader(new FileInputStream(file));
-                        BufferedReader bf = new BufferedReader(inputReader);            // 按行读取字符串
-                        String str;
-                        while ((str = bf.readLine()) != null) {
-                            int l = str.indexOf("SobeyHive");
-                            if (l == -1) {
-                                continue;
-                            }
-                            int n = str.indexOf("level");
-                            if (n == -1) {
-                                continue;
-                            }
-                            arrayList.add(str);
-                        }
-                        bf.close();
-                        inputReader.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }		// 对ArrayList中存储的字符串进行处理
-                int length = arrayList.size();
-                int[] array = new int[length];
-                for (int i = 0; i < length; i++) {
-                    String s = arrayList.get(i) ;
-//                System.out.println(s);
-//                System.out.println("arrayList.get(i).length:"+arrayList.get(i).length()+"-----s.length:"+s.length());
-                    int n = s.indexOf("{");
-                    int m = s.length();
-                    String str2 = s.substring(n, m);
-                    JSONObject pa = JSONObject.parseObject(str2);
-                    String level = pa.getString("level");
-                    String time = pa.getString("time");
-                    //   String time1 = dateFormatChange(time);
-                    String detail = pa.getString("detail");
-                    //  System.out.println(pa.getString("level") + "," + time );
-                    //  array[i] = Integer.parseInt(s);
-                    Log log = new Log(filePath, level, time, detail);
-                    logs.add(log);
-                    // 文件的大小
-                    long fileSize = FileUtils.sizeOf(f);
-                    // 创建Field
-                    // 参数1：域的名称，参数2：域的内容，参数3：是否存储
-                    Field fieldName = new TextField("name", fileName, Field.Store.YES);
-                    Field fieldPath = new StoredField("path", filePath);
-                    Field fileTime = new TextField("time", time, Field.Store.YES);
-                    Field fileLevel = new TextField("level", level, Field.Store.YES);
-                    Field fieldContent = new TextField("content", detail, Field.Store.YES);
-                    Field fieldSizeValue = new LongPoint("size", fileSize);
-                    Field fieldSizeStore = new StoredField("size", fileSize);
-                    // 创建文档对象
-                    Document document = new Document();
-                    // 向文档对象中添加域
-                    document.add(fieldName);
-                    document.add(fieldPath);
-                    document.add(fileTime);
-                    document.add(fileLevel);
-                    document.add(fieldContent);
-                    // document.add(fieldSize);
-                    document.add(fieldSizeValue);
-                    document.add(fieldSizeStore);
-                    // 5、把文档对象写入索引库
-                    indexWriter.addDocument(document);
-                    count++;
-                }
-                System.out.println("count:"+count);
-            }
-            // 6、关闭indexwriter对象
-            indexWriter.close();
-//            sort(logs);
-//            int count1 = 0;
-//            for(Log log:logs){
-//                count1++;
-//                System.out.println(log);
-//            }
-//            System.out.println("zongshudddddd"+count1);
-//            System.out.println("zongshu:"+count);
-        }catch(IOException e){
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
+
     //根据点击的目录树创建索引库
     //判断是否是文件夹，是，回调；否，创建库
     public static void createIndexByDir(String path) throws IOException {
@@ -171,8 +65,8 @@ public class Indexer {
             }
         }
     }
-
-    public static boolean createIndex111(String filePath){
+@Test
+    public static boolean createIndex(String filePath){
         System.out.println("lucene :"+filePath);
         try{
             // 1、创建一个Director对象，指定索引库保存的位置。
@@ -677,6 +571,7 @@ public class Indexer {
         //关闭indexreader对象
         indexReader.close();
     }
+
 }
 
 

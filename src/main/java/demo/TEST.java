@@ -19,11 +19,9 @@ public class TEST {
         System.out.println(str.replaceAll("-",""));
         System.out.println(str.replaceAll("-","").replaceAll(":",""));
         System.out.println(str.replaceAll("-","").replaceAll(":","").replaceAll(" ",""));
-        System.out.println(str.replaceAll("-","").replaceAll(":","").replaceAll(" ","").replaceAll(".",""));
 
 
     }
-
     private static List<String> getAllFilePaths(File filePath,List<String> filePaths){
         File[] files = filePath.listFiles();
         if(files == null){

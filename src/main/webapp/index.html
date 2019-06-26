@@ -86,6 +86,21 @@
         </table>
     </div>
     <script>
+        function getAllChildIds(treeNode,result){
+            if (treeNode.isParent){
+                var childrenNodes = treeNode.children;
+                if (childrenNodes) {
+                    for (var i = 0; i < childrenNodes.length; i++) {
+                        result += ',' + childrenNodes[i].id;
+// console.log(result);
+                        result = getAllChildIds(childrenNodes[i], result);
+                        console.log("NodesId:"+result)
+                    }
+                }
+            }
+            return result;
+        }
+
        <!--右侧日志查找 -->
             $('#foundPath').on('click',function(){
                 var seachFilePath =$('#seachFilePath').val();
@@ -115,6 +130,9 @@
     </script>
 </div>
 <div id="left_top">
+    <ul class="layui-nav" lay-filter="">
+        <li class="layui-nav-item"><a href="">索引库存放路径：D:\luceneIndex</a></li>
+    </ul>
     <input type="text" id="seachFilePath" lay-verify="required" style="width:200px;"
            placeholder="请输入目录地址" data-provide="typeahead" class="layui-input" autocomplete="off">
     <input type="text" id="seachFilePathDetail" lay-verify="required" style="width:200px;"
@@ -128,6 +146,30 @@
     </div>
 
     <script>
+
+        //注意：导航 依赖 element 模块，否则无法进行功能性操作
+        layui.use('element', function(){
+            var element = layui.element;
+
+            //…
+        });
+
+        function getAllChildIds(treeNode,result){
+            if (treeNode.isParent){
+                var childrenNodes = treeNode.children;
+                if (childrenNodes) {
+                    for (var i = 0; i < childrenNodes.length; i++) {
+                        result += ',' + childrenNodes[i].id;
+// console.log(result);
+                        result = getAllChildIds(childrenNodes[i], result);
+                    }
+                }
+            }
+            return result;
+        }
+
+
+
         var setting = {
             callback: {
                 onClick: zTreeOnClick
@@ -149,6 +191,7 @@
                 dataType:'json',
                 type:'POST',
                 success:function(result){
+                    console.log("ztreeJson:"+result)
                     var tree=$("#treeDemo");
                     var zNodes=eval('('+result+')');
                     console.log("creatTreeZNodes",zNodes);
@@ -163,7 +206,6 @@
         <!-- 左侧目录树点击事件-->
         function zTreeOnClick(event, treeId, treeNode) {
             var treeNodeName = treeNode.name
-
             var thisPath="";
             $.each(treeNode.getPath(),function(i,v){
                 thisPath+=v.name+"\\";
@@ -175,14 +217,18 @@
         function searchLogByPath(dir,path){
             console.log("根目录",dir);
             console.log("当前目录+\\:",path);
+            var currentPage;
+
             $.ajax({
                 url: 'logController/searchLogByPath',
                 type: 'get',
                 data: {
                     dir:dir,
-                    path: path
+                    path: path,
+                    curr:currentPage
                 },
                 dataType:'json',
+
                 success:function(data){
                     console.log("TreeClickReturnData:"+data);
                     layui.use(['laypage', 'layer'], function () {
@@ -197,23 +243,24 @@
         }
 
         <!-- 调用分页-->
-function changePage(data) {
-    layui.use(['laypage', 'layer'], function () {
-        var laypage = layui.laypage
-            , layer = layui.layer;
-        laypage.render({
-            elem: 'content'
-            , count: data.length
-            , limit: 1000
-            , jump: function (obj) {
-                //模拟渲染
-                document.getElementById('biuuu_city_list').innerHTML = function () {
-                    var arr = []
-                        , thisData = data.concat().splice(obj.curr * obj.limit - obj.limit, obj.limit);
-                    $('#box').html = '';
-                    layui.each(thisData, function (i, v) {
-                        let htmlStr = '';
-                        htmlStr = `<tr>
+        <!-- 调用分页-->
+        function changePage(data) {
+            layui.use(['laypage', 'layer'], function () {
+                var laypage = layui.laypage
+                    , layer = layui.layer;
+                laypage.render({
+                    elem: 'content'
+                    , count: data.length
+                    , limit: 1000
+                    , jump: function (obj) {
+                        //模拟渲染
+                        document.getElementById('biuuu_city_list').innerHTML = function () {
+                            var arr = []
+                                , thisData = data.concat().splice(obj.curr * obj.limit - obj.limit, obj.limit);
+                            $('#box').html = '';
+                            layui.each(thisData, function (i, v) {
+                                let htmlStr = '';
+                                htmlStr = `<tr>
                                         <div >
                                         for(i in data) {
                                             <td align='left'>${i + 1}.${v.path}</td>
@@ -222,17 +269,19 @@ function changePage(data) {
                                             <td align='left' style="width: 1000px; ">${v.detail}</td>
                                         </div>
                                       </tr>`
-                        $('#content').append(htmlStr);
-                    });
-                    return arr.join('');
-                }();
-            }
-        });
-    });
-}
+                                $('#content').append(htmlStr);
+                            });
+                            return arr.join('');
+                        }();
+                    }
+                });
+            });
+        }
 
-
-
+//联动function
+        function selectCustomerDb(v) {
+           console.log("v.detail:",v.path)
+        }
     </script>
 </div>
 </body>
